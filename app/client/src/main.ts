@@ -182,13 +182,13 @@ async function loadDatabaseSchema() {
 
 // Display query results
 function displayResults(response: QueryResponse, query: string) {
-  
+
   const resultsSection = document.getElementById('results-section') as HTMLElement;
   const sqlDisplay = document.getElementById('sql-display') as HTMLDivElement;
   const resultsContainer = document.getElementById('results-container') as HTMLDivElement;
-  
+
   resultsSection.style.display = 'block';
-  
+
   // Display natural language query and SQL
   sqlDisplay.innerHTML = `
     <div class="query-display">
@@ -198,7 +198,7 @@ function displayResults(response: QueryResponse, query: string) {
       <strong>SQL:</strong> <code>${response.sql}</code>
     </div>
   `;
-  
+
   // Display results table
   if (response.error) {
     resultsContainer.innerHTML = `<div class="error-message">${response.error}</div>`;
@@ -209,12 +209,41 @@ function displayResults(response: QueryResponse, query: string) {
     resultsContainer.innerHTML = '';
     resultsContainer.appendChild(table);
   }
-  
-  // Initialize toggle button
+
+  // Add download button for query results
+  const resultsHeader = document.querySelector('.results-header') as HTMLElement;
+
+  // Remove any existing download button
+  const existingDownload = resultsHeader.querySelector('.query-download-button');
+  if (existingDownload) {
+    existingDownload.remove();
+  }
+
+  // Create download button
+  const downloadButton = document.createElement('button');
+  downloadButton.className = 'download-button query-download-button';
+  downloadButton.innerHTML = '⬇';
+  downloadButton.title = 'Export results as CSV';
+  downloadButton.style.marginRight = '0.5rem';
+  downloadButton.onclick = async () => {
+    try {
+      await api.exportQueryResults(response.sql);
+    } catch (error) {
+      console.error('Failed to export query results:', error);
+      alert(`Failed to export query results: ${error}`);
+    }
+  };
+
+  // Insert download button before Hide button
   const toggleButton = document.getElementById('toggle-results') as HTMLButtonElement;
-  toggleButton.addEventListener('click', () => {
+  toggleButton.parentNode?.insertBefore(downloadButton, toggleButton);
+
+  // Reset and re-initialize toggle button event listener
+  const newToggleButton = toggleButton.cloneNode(true) as HTMLButtonElement;
+  toggleButton.replaceWith(newToggleButton);
+  newToggleButton.addEventListener('click', () => {
     resultsContainer.style.display = resultsContainer.style.display === 'none' ? 'block' : 'none';
-    toggleButton.textContent = resultsContainer.style.display === 'none' ? 'Show' : 'Hide';
+    newToggleButton.textContent = resultsContainer.style.display === 'none' ? 'Show' : 'Hide';
   });
 }
 
@@ -284,15 +313,37 @@ function displayTables(tables: TableSchema[]) {
     
     tableLeft.appendChild(tableName);
     tableLeft.appendChild(tableInfo);
-    
+
+    // Create buttons container
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.style.display = 'flex';
+    buttonsContainer.style.alignItems = 'center';
+
+    // Add download button
+    const downloadButton = document.createElement('button');
+    downloadButton.className = 'download-button';
+    downloadButton.innerHTML = '⬇';
+    downloadButton.title = 'Export table as CSV';
+    downloadButton.onclick = async () => {
+      try {
+        await api.exportTable(table.name);
+      } catch (error) {
+        console.error('Failed to export table:', error);
+        alert(`Failed to export table: ${error}`);
+      }
+    };
+
     const removeButton = document.createElement('button');
     removeButton.className = 'remove-table-button';
     removeButton.innerHTML = '&times;';
     removeButton.title = 'Remove table';
     removeButton.onclick = () => removeTable(table.name);
-    
+
+    buttonsContainer.appendChild(downloadButton);
+    buttonsContainer.appendChild(removeButton);
+
     tableHeader.appendChild(tableLeft);
-    tableHeader.appendChild(removeButton);
+    tableHeader.appendChild(buttonsContainer);
     
     // Columns section
     const tableColumns = document.createElement('div');
