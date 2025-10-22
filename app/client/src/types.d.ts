@@ -84,3 +84,20 @@ interface HealthCheckResponse {
   version: string;
   uptime_seconds: number;
 }
+
+// CSV Export Types
+interface TableExportRequest {
+  table_name: string;
+}
+
+interface QueryExportRequest {
+  query: string;
+  params?: any[];
+}
+
+interface CSVExportResponse {
+  filename: string;
+  content: string;
+  row_count: number;
+  error?: string;
+}

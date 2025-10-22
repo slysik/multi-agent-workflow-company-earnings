@@ -80,5 +80,95 @@ export const api = {
   // Generate random query
   async generateRandomQuery(): Promise<RandomQueryResponse> {
     return apiRequest<RandomQueryResponse>('/generate-random-query');
+  },
+
+  // Export table as CSV
+  async exportTable(tableName: string): Promise<void> {
+    const url = `${API_BASE_URL}/export/table/${encodeURIComponent(tableName)}`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'text/csv'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status}`);
+      }
+
+      // Get filename from Content-Disposition header
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = `${tableName}_export.csv`;
+      if (disposition) {
+        const filenameMatch = disposition.match(/filename=["']?([^"';]+)/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Get the blob data
+      const blob = await response.blob();
+
+      // Create download link
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Table export failed:', error);
+      throw error;
+    }
+  },
+
+  // Export query results as CSV
+  async exportQueryResults(query: string, params?: any[]): Promise<void> {
+    const url = `${API_BASE_URL}/export/query`;
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'text/csv'
+        },
+        body: JSON.stringify({ query, params })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Export failed: ${response.status}`);
+      }
+
+      // Get filename from Content-Disposition header
+      const disposition = response.headers.get('Content-Disposition');
+      let filename = 'query_results.csv';
+      if (disposition) {
+        const filenameMatch = disposition.match(/filename=["']?([^"';]+)/);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
+
+      // Get the blob data
+      const blob = await response.blob();
+
+      // Create download link
+      const downloadUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Query results export failed:', error);
+      throw error;
+    }
   }
 };

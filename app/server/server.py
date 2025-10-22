@@ -1,5 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import StreamingResponse
 from datetime import datetime
 import os
 import sqlite3
@@ -7,6 +8,7 @@ import traceback
 from dotenv import load_dotenv
 import logging
 import sys
+import io
 
 from core.data_models import (
     FileUploadResponse,
@@ -18,7 +20,10 @@ from core.data_models import (
     HealthCheckResponse,
     TableSchema,
     ColumnInfo,
-    RandomQueryResponse
+    RandomQueryResponse,
+    TableExportRequest,
+    QueryExportRequest,
+    CSVExportResponse
 )
 from core.file_processor import convert_csv_to_sqlite, convert_json_to_sqlite, convert_jsonl_to_sqlite
 from core.llm_processor import generate_sql, generate_random_query
@@ -30,6 +35,7 @@ from core.sql_security import (
     check_table_exists,
     SQLSecurityError
 )
+from core.csv_exporter import export_table_to_csv, export_query_results_to_csv
 
 # Load .env file from server directory
 load_dotenv()
@@ -276,14 +282,14 @@ async def delete_table(table_name: str):
             validate_identifier(table_name, "table")
         except SQLSecurityError as e:
             raise HTTPException(400, str(e))
-        
+
         conn = sqlite3.connect("db/database.db")
-        
+
         # Check if table exists using secure method
         if not check_table_exists(conn, table_name):
             conn.close()
             raise HTTPException(404, f"Table '{table_name}' not found")
-        
+
         # Drop the table using safe query execution with DDL permission
         execute_query_safely(
             conn,
@@ -293,7 +299,7 @@ async def delete_table(table_name: str):
         )
         conn.commit()
         conn.close()
-        
+
         response = {"message": f"Table '{table_name}' deleted successfully"}
         logger.info(f"[SUCCESS] Table deleted: {table_name}")
         return response
@@ -303,6 +309,72 @@ async def delete_table(table_name: str):
         logger.error(f"[ERROR] Table deletion failed: {str(e)}")
         logger.error(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
         raise HTTPException(500, f"Error deleting table: {str(e)}")
+
+@app.get("/api/export/table/{table_name}")
+async def export_table(table_name: str):
+    """Export complete table data as CSV file"""
+    try:
+        # Export table to CSV
+        csv_content, filename = export_table_to_csv(table_name)
+
+        # Count rows for logging (subtract 1 for header)
+        row_count = csv_content.count('\n') - 1
+        if row_count < 0:
+            row_count = 0
+
+        logger.info(f"[SUCCESS] Table export: {table_name}, rows: {row_count}, filename: {filename}")
+
+        # Return streaming response with CSV data
+        return StreamingResponse(
+            io.StringIO(csv_content),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
+    except SQLSecurityError as e:
+        logger.error(f"[ERROR] Table export security error: {str(e)}")
+        raise HTTPException(400, str(e))
+    except Exception as e:
+        logger.error(f"[ERROR] Table export failed: {str(e)}")
+        logger.error(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+        raise HTTPException(500, f"Error exporting table: {str(e)}")
+
+@app.post("/api/export/query")
+async def export_query_results(request: QueryExportRequest):
+    """Export query results as CSV file"""
+    try:
+        # Export query results to CSV
+        csv_content, filename = export_query_results_to_csv(request.query, request.params)
+
+        # Count rows for logging (subtract 1 for header)
+        row_count = csv_content.count('\n') - 1
+        if row_count < 0:
+            row_count = 0
+
+        logger.info(f"[SUCCESS] Query export: rows: {row_count}, filename: {filename}")
+
+        # Return streaming response with CSV data
+        return StreamingResponse(
+            io.StringIO(csv_content),
+            media_type="text/csv",
+            headers={
+                "Content-Disposition": f"attachment; filename={filename}",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache",
+                "Expires": "0"
+            }
+        )
+    except SQLSecurityError as e:
+        logger.error(f"[ERROR] Query export security error: {str(e)}")
+        raise HTTPException(400, str(e))
+    except Exception as e:
+        logger.error(f"[ERROR] Query export failed: {str(e)}")
+        logger.error(f"[ERROR] Full traceback:\n{traceback.format_exc()}")
+        raise HTTPException(500, f"Error exporting query results: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn
