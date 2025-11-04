@@ -29,3 +29,9 @@ This prompt helps you determine what documentation you should read based on the 
 - adws/README.md
   - Conditions:
     - When you're operating in the `adws/` directory
+
+- app_docs/feature-d2d0ccbd-export-button-text.md
+  - Conditions:
+    - When modifying query results export button UI
+    - When working with export buttons in the results header
+    - When troubleshooting CSV export button display issues

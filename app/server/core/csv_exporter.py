@@ -6,7 +6,7 @@ Handles proper CSV formatting, special characters, and data type conversions.
 import csv
 import io
 import sqlite3
-from typing import List, Dict, Any, Optional
+from typing import List, Any, Optional
 from datetime import datetime
 from .sql_security import validate_identifier, validate_sql_query, SQLSecurityError
 
