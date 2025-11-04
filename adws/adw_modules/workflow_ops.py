@@ -550,7 +550,7 @@ def find_spec_file(state: ADWState, logger: logging.Logger) -> Optional[str]:
 
     if result.returncode == 0:
         files = result.stdout.strip().split("\n")
-        spec_files = [f for f in files if f.startswith("spec/") and f.endswith(".md")]
+        spec_files = [f for f in files if f.startswith("specs/") and f.endswith(".md") and not f.startswith("specs/patch/")]
 
         if spec_files:
             # Use the first spec file found
@@ -572,7 +572,7 @@ def find_spec_file(state: ADWState, logger: logging.Logger) -> Optional[str]:
             # Look for spec files matching the pattern
             import glob
 
-            pattern = f"spec/issue-{issue_num}-adw-{adw_id}*.md"
+            pattern = f"specs/issue-{issue_num}-adw-*.md"
             spec_files = glob.glob(pattern)
 
             if spec_files:
