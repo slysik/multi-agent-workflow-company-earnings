@@ -1,53 +1,73 @@
-# E2E Test: Random Query Generator
+# E2E Test: Random Query Generator (Earnings Analysis)
 
-Test the random query generation functionality in the Natural Language SQL Interface application.
+Test the Multi-Agent Earnings Analyzer API functionality including health checks and analysis endpoint.
 
 ## User Story
 
-As a user  
-I want to generate random natural language queries based on my database tables  
-So that I can discover interesting insights from my data and see example queries that work with my specific schema
+As a user
+I want to analyze earnings reports using the multi-agent system
+So that I can get comprehensive financial insights from earnings data using AI agents
 
 ## Test Steps
 
-1. Navigate to the `Application URL`
-2. Take a screenshot of the initial state
-3. **Verify** the page title is "Natural Language SQL Interface"
-4. **Verify** the Generate Random Query button is present
-5. **Verify** the button is positioned on the right side of the query controls
+1. Navigate to the `Application URL` (http://localhost:8000)
+2. Take a screenshot of the API root response
+3. **Verify** the API returns a JSON response
+4. **Verify** the response contains "Multi-Agent Earnings Analyzer"
 
-### Test with No Data
-6. Click the Generate Random Query button (without any data loaded)
-7. **Verify** the query input field is populated with "Please upload some data first to generate queries."
-8. Take a screenshot of the message
+### Test Health Check
+5. Navigate to http://localhost:8000/health
+6. **Verify** the health check returns status "healthy"
+7. **Verify** agents_available list contains expected agents
+8. **Verify** the agents list includes: coordinator, data_extractor, sentiment_analyzer, summary_generator
+9. Take a screenshot of the health check response
 
-### Test with Sample Data
-9. Click the Upload Data button
-10. Click on the "Users Data" sample button
-11. **Verify** the users table appears in Available Tables
-12. Take a screenshot of the tables section
-13. Click the Generate Random Query button
-14. **Verify** the query input field is populated with a natural language query
-15. **Verify** the generated query is relevant to the users table (e.g., contains references to users, signup dates, etc.)
-16. Take a screenshot of the generated query
-17. Click the Query button to execute the generated query
-18. **Verify** the query executes successfully
-19. **Verify** the SQL translation is displayed
-20. **Verify** the results table contains data
-21. Take a screenshot of the results
+### Test Agents Endpoint
+10. Navigate to http://localhost:8000/agents
+11. **Verify** the agents list is returned
+12. **Verify** the total count matches the number of agents (4)
+13. Take a screenshot of the agents list
 
-### Test Multiple Generations
-22. Click the Generate Random Query button again
-23. **Verify** a new, different query is generated
-24. **Verify** the new query overwrites the previous content in the input field
-25. Take a screenshot of the new generated query
+### Test Analysis with Sample Data
+14. Make a POST request to http://localhost:8000/analyze with:
+    ```json
+    {
+      "report_path": "app/client/app/client/data/earnings_report_sample.txt"
+    }
+    ```
+15. **Verify** the analysis completes successfully
+16. **Verify** the response contains status "success"
+17. **Verify** the response includes analysis_id
+18. **Verify** the response includes the following sections:
+    - financial_metrics
+    - segment_performance
+    - forward_guidance
+    - sentiment_analysis
+    - executive_summary
+19. Take a screenshot of the analysis response (summary view)
+
+### Test Error Handling
+20. Make a POST request to http://localhost:8000/analyze with invalid path:
+    ```json
+    {
+      "report_path": "nonexistent_file.txt"
+    }
+    ```
+21. **Verify** the API returns a 404 error
+22. **Verify** the error message mentions file not found
+23. Take a screenshot of the error response
+
+### Test API Documentation
+24. Navigate to http://localhost:8000/docs
+25. **Verify** the Swagger UI documentation loads
+26. **Verify** all endpoints are documented: /, /health, /agents, /analyze
+27. Take a screenshot of the API documentation
 
 ## Success Criteria
-- Generate Random Query button is visible and properly positioned
-- Button generates appropriate messages when no data is loaded
-- Button generates contextually relevant queries when data is loaded
-- Generated queries are limited to two sentences maximum
-- Generated queries can be executed successfully
-- Button overwrites existing query input content
-- Multiple clicks generate different queries
+- Root endpoint returns correct application name
+- Health check shows all 4 agents are available
+- Agents endpoint lists all specialized agents
+- Analysis endpoint successfully processes sample earnings report
+- Error handling works correctly for invalid file paths
+- API documentation is accessible and complete
 - 6 screenshots are taken

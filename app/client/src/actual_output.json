@@ -1,0 +1,82 @@
+{
+    "analysis_id": "analysis_1763694106.29312",
+    "status": "success",
+    "data": {
+        "analysis_id": "analysis_1763694106.29312",
+        "timestamp": "2025-11-20T22:01:46.293126",
+        "processing_time_seconds": 0.007745,
+        "agents_executed": [
+            "coordinator",
+            "data_extractor",
+            "sentiment_analyzer",
+            "summary_generator"
+        ],
+        "financial_metrics": {
+            "revenue": {
+                "value": 15.2,
+                "unit": "billion USD",
+                "yoy_change": 0.12
+            },
+            "net_income": {
+                "value": 3.8,
+                "unit": "billion USD",
+                "yoy_change": 0.18
+            },
+            "eps": {
+                "value": 4.52,
+                "analyst_estimate": 4.3,
+                "beat_estimate": true
+            },
+            "operating_margin": {
+                "current": 0.285,
+                "previous": 0.262
+            }
+        },
+        "segment_performance": {
+            "cloud_services": {
+                "revenue": 6.8,
+                "growth_rate": 0.35
+            }
+        },
+        "forward_guidance": {
+            "q4_2024": {
+                "revenue_range": [
+                    16.0,
+                    16.5
+                ]
+            }
+        },
+        "sentiment_analysis": {
+            "overall_sentiment": "positive",
+            "confidence": 0.95,
+            "management_tone": "balanced",
+            "key_positive_indicators": [
+                "exceeded expectations across all key metrics",
+                "remarkable strength in cloud services",
+                "unprecedented demand for AI solutions",
+                "strong balance sheet and cash generation"
+            ],
+            "key_negative_indicators": [
+                "hardware division revenue decline",
+                "potential market saturation concerns",
+                "macroeconomic uncertainties"
+            ],
+            "risk_factors_identified": [
+                "increasing cloud market competition",
+                "regulatory scrutiny",
+                "foreign exchange volatility",
+                "potential economic slowdown",
+                "cybersecurity threats"
+            ]
+        },
+        "executive_summary": {
+            "headline": "Q3 Earnings Analysis",
+            "summary": "Company reported 15.2 in revenue with 0.12 year-over-year stable growth. Management sentiment was positive, indicating optimism about market conditions. Strong operational execution evident in improved margins and cash generation.",
+            "recommendation": "BUY",
+            "confidence_score": 0.85
+        },
+        "errors": []
+    },
+    "errors": null,
+    "processing_time": 0.007745
+}
