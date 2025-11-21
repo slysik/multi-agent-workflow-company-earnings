@@ -221,32 +221,6 @@ Bottleneck: LLM API latency accounts for ~90% of processing time. Caching and mo
    curl http://localhost:8000/agents
    ```
 
-5. **Expected Output**:
-   ```json
-   {
-     "analysis_id": "analysis_1697365800.123",
-     "status": "success",
-     "data": {
-       "financial_metrics": {
-         "revenue": {"value": 15.2, "yoy_change": 0.12, "trend": "positive"},
-         "net_income": {"value": 3.8, "yoy_change": 0.18},
-         "eps": {"value": 4.52, "beat_estimate": true}
-       },
-       "sentiment_analysis": {
-         "overall_sentiment": "positive",
-         "confidence": 0.87,
-         "management_tone": "optimistic_cautious"
-       },
-       "executive_summary": {
-         "headline": "Strong Q3 Performance Driven by Cloud Growth",
-         "recommendation": "BUY",
-         "confidence_score": 0.82
-       }
-     },
-     "processing_time": 3.2
-   }
-   ```
-
 6. **View Interactive API Documentation**:
    - Swagger UI: http://localhost:8000/docs
    - ReDoc: http://localhost:8000/redoc

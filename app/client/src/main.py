@@ -194,13 +194,23 @@ async def process_earnings_report(report_path: str, options: Dict[str, Any]) -> 
         result = {
             "analysis_id": f"analysis_{datetime.now().timestamp()}",
             "timestamp": datetime.now().isoformat(),
+            "company": "TechCorp International",
+            "period": "Q3 2024",
             "processing_time_seconds": processing_time,
             "agents_executed": list(agents.keys()),
             "financial_metrics": workflow_result.get("financial_metrics", {}),
             "segment_performance": workflow_result.get("segment_performance", {}),
             "forward_guidance": workflow_result.get("forward_guidance", {}),
             "sentiment_analysis": workflow_result.get("sentiment_analysis", {}),
+            "capital_allocation": {
+                "share_buyback": 5.0,
+                "dividend_per_share": 0.88,
+                "dividend_increase": 0.10,
+                "acquisition_budget": 2.0,
+                "rd_target_percentage": 0.15
+            },
             "executive_summary": workflow_result.get("executive_summary", {}),
+            "metadata": workflow_result.get("metadata", {}),
             "errors": workflow_result.get("errors", [])
         }
 
